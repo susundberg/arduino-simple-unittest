@@ -28,3 +28,7 @@ Usage
 Examples
 ====================
 * See examples directory that also works as tests for this test framework.
+
+Testing of the test framework
+====================
+* Tested with travis on ubuntu trusty
