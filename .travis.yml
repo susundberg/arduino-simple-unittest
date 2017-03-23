@@ -4,7 +4,7 @@ sudo: required
 dist: trusty
 
 before_install:
-- sudo apt-get install scons
+- sudo apt-get install scons lcov
 
 compiler:
 - gcc
