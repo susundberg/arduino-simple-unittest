@@ -1,0 +1,10 @@
+--- tests/SConscript	2017-03-23 20:22:21.899990080 +0200
++++ tests/SConscript	2017-03-23 20:22:16.715833177 +0200
+@@ -7,6 +7,7 @@
+ # syntax is 'test_source_file_name' : List[ real sources ]
+ # And the the test must start with "mutest_"
+ MULTI_UNIT_TESTS = {}
++MULTI_UNIT_TESTS["mutest_main.cpp"] = ["runtime.cpp", "main.cpp"]
+ 
+ # What libraries and flags you want
+ libraries = ['gcov']

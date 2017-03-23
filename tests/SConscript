@@ -7,7 +7,6 @@
 # syntax is 'test_source_file_name' : List[ real sources ]
 # And the the test must start with "mutest_"
 MULTI_UNIT_TESTS = {}
-MULTI_UNIT_TESTS["mutest_main.cpp"] = ["runtime.cpp", "main.cpp"]
 
 # What libraries and flags you want
 libraries = ['gcov']
