@@ -1,0 +1,15 @@
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+- gcc
+os:
+- linux
+install:
+- apt-get install scons
+script: ./run_tests.sh 
+notifications:
+  email: false
+env:
+  - LANG="en_US.UTF-8"
+
