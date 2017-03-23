@@ -2,10 +2,11 @@
 cd examples
 
 set -e
-set -x
 
 for fn in example_*; do
-  ./build.sh $fn
+   if [ -d $fn ]; then
+     ./build.sh $fn
+   fi
 done
 
 

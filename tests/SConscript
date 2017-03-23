@@ -111,7 +111,7 @@ def build_unit_test_bins( env, libsources ):
    progs = []
    for source in [str(x) for x in Glob("test_*.cpp") ]:
       real_file = "../src/" + source.replace("test_","")
-      bin_name = "build/bin/ut_" + source.split(".")[0]
+      bin_name = "build/bin/ut_" + source.split(".")[0][len("test_"):]
       sources = ["build/root/" + source, "build/src/" + real_file ]
       sources.extend(libsources )
       prog = env.Program( bin_name, sources )

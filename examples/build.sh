@@ -1,6 +1,8 @@
 #!/bin/bash
 
 
+set -e
+
 usage_exit()
 {
    echo "$0 <target directory>"
@@ -12,8 +14,6 @@ if [ -z $1 ]; then
   usage_exit;
 fi
 
-set -e
-set -x
 
 
 SOURCE_DIR=$1
