@@ -1,0 +1,143 @@
+#
+# This is building script for the unittests.
+#
+#
+
+# Define here tests that use several real source code files; others will be mocked
+# syntax is 'test_source_file_name' : List[ real sources ]
+# And the the test must start with "mutest_"
+MULTI_UNIT_TESTS = {}
+MULTI_UNIT_TESTS["mutest_main.cpp"] = ["runtime.cpp", "main.cpp"]
+
+# What libraries and flags you want
+libraries = ['gcov']
+cppFlags = ['-Wall', "-O0", "-g", "-fprofile-arcs","-ftest-coverage" ]#, '-Werror']
+
+
+ENV = Environment()
+ENV.Append(LIBS = libraries)
+ENV.Append(CPPFLAGS = cppFlags)
+ENV.Append(CPPPATH = ["tools/", "../src/",] )
+ENV.Append(LINKFLAGS="--coverage")
+
+ENV.VariantDir('build/src', '../src', duplicate=0)
+ENV.VariantDir('build/mocks_gen', 'mocks_gen', duplicate=0)
+ENV.VariantDir('build/mocks_man', 'mocks_man', duplicate=0)
+ENV.VariantDir('build/fakes', 'fakes', duplicate=0)
+ENV.VariantDir('build/root', './', duplicate=0)
+
+ENV_TESTBIN = ENV.Clone()
+ENV_TESTBIN.Append( CPPPATH = ("mocks_gen", "mocks_man", "fakes", ), )
+
+
+# Scan for files 
+import os
+
+def seek_headers( target_dir, valid_endings ):
+   mock_set = set()
+   for fn in os.listdir( target_dir ):
+      fn = os.path.join(target_dir, fn)
+      
+      fn_lower = fn.lower()
+      for ending in valid_endings:
+         if fn_lower.endswith(ending):
+            break
+      else:
+         continue
+      mock_set.add( fn )
+   return mock_set
+
+   
+def fn_replace( what, with_what, fns ):
+    ret = []
+    for fn in sorted(fns):
+       fn = fn.replace(what, with_what) 
+       fn = fn.split(".")[0] + ".cpp"
+       ret.append(fn)
+    return ret
+   
+   
+def build_mock_lib( env ):
+   # Scan for all manually mocked files
+   # Scan for all files that are available for mocking
+   HEADER_ENDINGS = (".h", ".hh", ".hpp")
+   mocks_manual    = seek_headers("./mocks_man", HEADER_ENDINGS )
+   mocks_generated = seek_headers("../src", HEADER_ENDINGS ) - mocks_manual
+   
+   from tools.fffmock import generate_mocks
+
+   def generate_mock( source, target, env ):
+      assert( len(source) == 1)
+      assert( len(target) == 2)
+      source_fn   = source[0].get_abspath()
+      target_c_fn = target[0].get_abspath()
+      target_h_fn = target[1].get_abspath()
+      generate_mocks( source_fn, target_h_fn, target_c_fn  )
+      
+   def mock_rename( source_header ):
+      mock_base = os.path.basename( source_header ).split(".")[0]
+      return "mocks_gen/mock_%s.cpp" % mock_base
+   
+   def mock_rename_both( source_header ):
+      source_c = mock_rename( source_header  )
+      source_h = source_c.split(".")[0] + ".h"
+      return (source_c, source_h)
+   
+   for source_header in mocks_generated:
+      mock_name_c, mock_name_h = mock_rename_both( source_header )
+      t = env.Command(target=(mock_name_c, mock_name_h), source=source_header, action=generate_mock)
+      env.Depends( t , "tools/fffmock.py" )
+      env.Depends( "build/" + mock_name_c , t)
+      env.Depends( "build/" + mock_name_h , t)
+   
+   mocks_generated = { mock_rename(x) for x in mocks_generated }
+   mocks_manual = { mock_rename(x) for x in mocks_manual }
+
+   mocklib_sources = []
+   mocklib_sources = fn_replace("mocks_gen", "build/mocks_gen", mocks_generated ) + fn_replace("mocks_man", "build/mocks_man", mocks_manual ) 
+   mock_lib = env.Library( "build/build/mocks", mocklib_sources,   )
+   return mock_lib 
+
+def build_fake_lib( env ):
+   source_files = Glob('fakes/*.c') + Glob('fakes/*.cpp')
+   source_files = [ str(x) for x in source_files ]
+   source_files = fn_replace("fakes/", "build/fakes/", source_files )
+   return env.Library( "build/build/fakes", source_files   )
+   
+
+def build_test_lib( env ):
+   return env.Library( "build/build/tests", "build/root/tmain.cpp" )
+
+def build_unit_test_bins( env, libsources ):
+   progs = []
+   for source in [str(x) for x in Glob("test_*.cpp") ]:
+      real_file = "../src/" + source.replace("test_","")
+      bin_name = "build/bin/ut_" + source.split(".")[0]
+      sources = ["build/root/" + source, "build/src/" + real_file ]
+      sources.extend(libsources )
+      prog = env.Program( bin_name, sources )
+      progs.append(prog)
+   return progs
+   
+def build_multi_unit_test_bins( env, libsources ):
+   progs = []
+   for test_source, uut_sources in MULTI_UNIT_TESTS.items():
+      if not test_source.startswith("mutest_"):
+         raise Exception("MULTI_UNIT_TESTS must be prefixed with 'mutest_'")
+      
+      bin_name = "build/bin/mut_" + test_source.split(".")[0][ len("mutest_"): ]
+      sources = ["build/root/" + test_source, ] + [ "build/src/%s" % x for x in uut_sources  ]
+      sources.extend(libsources )
+      prog = env.Program( bin_name, sources )
+      progs.append(prog)
+   return progs
+      
+   
+MOCK_LIB = build_mock_lib(ENV)
+FAKE_LIB = build_fake_lib(ENV)
+TEST_LIB = build_test_lib(ENV)
+
+
+build_multi_unit_test_bins( ENV_TESTBIN, ( TEST_LIB, FAKE_LIB, MOCK_LIB, ) ) 
+build_unit_test_bins(ENV_TESTBIN, ( TEST_LIB, FAKE_LIB, MOCK_LIB, ) ) 
+
