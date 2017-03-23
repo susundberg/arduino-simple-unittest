@@ -5,7 +5,7 @@ Simple framework to provide unittesting for arduino projects
 
 Why use it
 ====================
-I found some arduino mock/test frameworks but they were either hacky or just hard to use, since you could not mock any modules. As professional software guy, i cannot stand bad tools. I want to be able to step the code with gdb to find out how it works rather than embed my code with tons of printfs. And i want test coverage raport.
+I found some arduino mock/test frameworks but they were either hacky or just hard to use, since you could not mock any modules. As professional software guy, i cannot stand bad tools or untested code (its just compiling before testing!). And i want to be able to step the code with gdb to find out what is going on rather than embed my code with tons of printfs - and then remove then when preparing to production. And i want test coverage raport.
 
 So what you get is a simple way to unittest your code.
 
@@ -24,6 +24,8 @@ Why it works
 
 Usage
 ====================
+Its not currently working with Arduino IDE code, but i welcome pull requests to make it happen. It should not be that much. But it does work fine with platformio projects.
+
 * Copy the 'tests' folder into your project 
 * The sconscript assumes that you have 'src' directory that contains *.cpp or *c files that each have corresponding .h header file. 
     * For example if you have "src/robot_arm.cpp" you must have also "src/robot_arm.h" that contains declarations of the functions you want to test
@@ -37,6 +39,7 @@ Usage
 Examples
 ====================
 * See examples directory that also works as tests for this test framework.
+* See my aquarium feeder [https://github.com/susundberg/arduino-aquarium-feeder] project for full platformio example  
 
 Testing of the test framework
 ====================
