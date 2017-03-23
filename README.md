@@ -1,7 +1,5 @@
 # arduino-simple-unittest
 
-Simple framework to provide unittesting for arduino projects
-
 
 Why use it
 ====================
@@ -18,9 +16,9 @@ How it works
 
 Why it works
 ====================
-* FFF [https://github.com/meekrosoft/fff] to make mock functions
-* CPPclean [https://github.com/myint/cppclean/] to parse the sources to find what kind of functions to mock  
-* Catch [https://github.com/philsquared/Catch] to run tests
+* [FFF](https://github.com/meekrosoft/fff) to make mock functions
+* [CPPclean](https://github.com/myint/cppclean/) to parse the sources to find what kind of functions to mock  
+* [Catch](https://github.com/philsquared/Catch) to run tests
 
 Usage
 ====================
@@ -39,8 +37,8 @@ Its not currently working with Arduino IDE code, but i welcome pull requests to 
 Examples
 ====================
 * See examples directory that also works as tests for this test framework.
-* See my aquarium feeder [https://github.com/susundberg/arduino-aquarium-feeder] project for full platformio example  
+* See my [aquarium feeder](https://github.com/susundberg/arduino-aquarium-feeder) project for full platformio example  
 
 Testing of the test framework
 ====================
-* Tested with travis on ubuntu trusty
+* Tested with travis on ubuntu trusty ![build status](https://travis-ci.org/susundberg/arduino-simple-unittest.svg?branch=master)
