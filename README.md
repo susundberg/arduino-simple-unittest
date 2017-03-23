@@ -12,6 +12,7 @@ How it works
 Why it works
 ====================
 * FFF [https://github.com/meekrosoft/fff] to make mock functions
+* CPPclean [https://github.com/myint/cppclean/] to parse the sources to find what kind of functions to mock  
 * Catch [https://github.com/philsquared/Catch] to run tests
 
 Usage
@@ -26,3 +27,4 @@ Usage
 
 Examples
 ====================
+* See examples directory that also works as tests for this test framework.
