@@ -2,6 +2,13 @@
 
 Simple framework to provide unittesting for arduino projects
 
+
+Why use it
+====================
+I found some arduino mock/test frameworks but they were either hacky or just hard to use, since you could not mock any modules. As professional software guy, i cannot stand bad tools. I want to be able to step the code with gdb to find out how it works rather than embed my code with tons of printfs. And i want test coverage raport.
+
+So what you get is a simple way to unittest your code.
+
 How it works
 ====================
 * The sconscript python build script scans src/ directory for *.h files - that are considered as modules.
@@ -23,6 +30,8 @@ Usage
 * Add building of the tests to your build manager - it works by executing '''scons -Y tests/tools/''' on base path
     * There is also example Makefile on the tests/tools/ directory
 * Add file "test_<unit name here>.cpp" that contains Catch tests. It will be done as binary called tests/build/bin/ut_<unit name here> with every other module replaced with mocks.
+* Modify the sconscript file variable MULTI_UNIT_TESTS to contain multi-unit tests
+* See tools/Makefile for example makefile targets - or use it directly.
 
 
 Examples
