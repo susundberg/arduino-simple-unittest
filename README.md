@@ -3,10 +3,13 @@ Why use it
 ====================
 I found some arduino mock/test frameworks but they were either hacky or just hard to use, since you could not mock any modules. As professional software guy, i cannot stand bad tools or untested code (its just compiling before testing!). And i want to be able to step the code with gdb to find out what is going on rather than embed my code with tons of printfs - and then remove then when preparing to production. And i want test coverage report. 
 
-
 So what you get is a simple way to unittest your code.
 
-  
+### Features:
+* Automatic generation of mock/stub functions from source-files headers
+* Basic Arduino functions fakes (so that compiling works, this is not an emulator)
+* Batteries included: test-framework & mocking picked from two lightweight alternatives   
+* Automatic compling of binary per source file, with other sources files stubbed amd binary per set of defined source files, with other sources stubbed.
 
 How it works
 ====================
