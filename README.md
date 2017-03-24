@@ -28,11 +28,12 @@ Usage
 Its not currently working with Arduino IDE code, but i welcome pull requests to make it happen. It should not be that much. But it does work fine with platformio projects.
 
 * Copy the 'tests' folder into your project 
-* The sconscript assumes that you have 'src' directory that contains *.cpp or *c files that each have corresponding .h header file. 
-    * For example if you have "src/robot_arm.cpp" you must have also "src/robot_arm.h" that contains declarations of the functions you want to test
+* The sconscript assumes that you have 'src' directory that contains *.cpp files that each have corresponding .h header file. 
+    * You need to split your project into separate files - i call them on this text modules - every module own functions are real and every other module is mocked - that is when the function is called, rather than the real code is executed a stub or mock function is called (that records the parameters and returns a given value by default) 
+    * For example if you have "src/robot_arm.cpp" you must have also "src/robot_arm.h" that contains declarations of the functions that are called outside of the module. And the "src/main.cpp" that calls "robot_arm_init()" function will be calling actually a stub "robot_arm_init()" function when running main.cpp unittests (defined in file "tests/test_main.cpp").
 * Add building of the tests to your build manager - it works by executing '''scons -Y tests/tools/''' on base path
     * There is also example Makefile on the tests/tools/ directory
-* Add file "test_<unit name here>.cpp" that contains Catch tests. It will be done as binary called tests/build/bin/ut_<unit name here> with every other module replaced with mocks.
+* Add file "test_<unit name here>.cpp" that contains Catch tests. It will be done as binary called "tests/build/bin/ut_<unit name here>" with every other module replaced with mocks.
 * Modify the sconscript file variable MULTI_UNIT_TESTS to contain multi-unit tests
 * See tools/Makefile for example makefile targets - or use it directly.
 
