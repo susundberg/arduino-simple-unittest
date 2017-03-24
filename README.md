@@ -1,9 +1,12 @@
 
 Why use it
 ====================
-I found some arduino mock/test frameworks but they were either hacky or just hard to use, since you could not mock any modules. As professional software guy, i cannot stand bad tools or untested code (its just compiling before testing!). And i want to be able to step the code with gdb to find out what is going on rather than embed my code with tons of printfs - and then remove then when preparing to production. And i want test coverage raport.
+I found some arduino mock/test frameworks but they were either hacky or just hard to use, since you could not mock any modules. As professional software guy, i cannot stand bad tools or untested code (its just compiling before testing!). And i want to be able to step the code with gdb to find out what is going on rather than embed my code with tons of printfs - and then remove then when preparing to production. And i want test coverage report. 
+
 
 So what you get is a simple way to unittest your code.
+
+  
 
 How it works
 ====================
@@ -12,11 +15,13 @@ How it works
 * Scans for tests/test_*.cpp for module unittests - builds binary for each of them and mocks other modules
 * Reads Sconscript MULTI_UNIT_TESTS variable for tests that contains more than one real module. Mocks others.
 
-Why it works
+What makes the heavy lifting
 ====================
 * [FFF](https://github.com/meekrosoft/fff) to make mock functions
 * [CPPclean](https://github.com/myint/cppclean/) to parse the sources to find what kind of functions to mock  
 * [Catch](https://github.com/philsquared/Catch) to run tests
+* [Scons](http://scons.org/) to run building scripts 
+* [Lcov](http://ltp.sourceforge.net/coverage/lcov.php) to generate coverage report.
 
 Usage
 ====================
@@ -36,6 +41,13 @@ Examples
 ====================
 * See examples directory that also works as tests for this test framework.
 * See my [aquarium feeder](https://github.com/susundberg/arduino-aquarium-feeder) project for full platformio example  
+
+#### Screenshot: Debugger on arduino code
+![screenshot debugger](https://rawgit.com/susundberg/arduino-simple-unittest/master/website/screen_debug.png)
+
+#### Screenshot: Coverage of the tests on firefox (generates html)
+![screenshot coverage](https://rawgit.com/susundberg/arduino-simple-unittest/master/website/screen_coverage.png)
+
 
 Testing of the test framework
 ====================
