@@ -1,5 +1,3 @@
-# arduino-simple-unittest
-
 
 Why use it
 ====================
