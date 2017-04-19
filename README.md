@@ -56,3 +56,11 @@ Examples
 Testing of the test framework
 ====================
 * Tested with travis on ubuntu trusty ![build status](https://travis-ci.org/susundberg/arduino-simple-unittest.svg?branch=master)
+
+TODO
+====================
+* Support for overloaded functions
+* Support for references in parameters
+* Support for types that are defined inside classes/structures
+
+
