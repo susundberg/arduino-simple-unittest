@@ -59,6 +59,7 @@ Testing of the test framework
 
 TODO
 ====================
+* Support for static member functions
 * Support for overloaded functions
 * Support for references in parameters
 * Support for types that are defined inside classes/structures
