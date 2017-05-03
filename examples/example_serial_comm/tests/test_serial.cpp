@@ -7,18 +7,6 @@
 
 #include "Arduino.h"
 
-
-Serial_CLS help;
-
-// void foo()
-// {
-// 
-// help._test_output_buffer.size()
-// 
-//    help._test_input_buffer
-// };
-
-
 TEST_CASE( "input works", "[serial]" ) 
 {
    Serial._test_clear();

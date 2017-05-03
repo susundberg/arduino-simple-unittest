@@ -78,6 +78,13 @@ void Arduino_TEST::hookup()
    memset( ARDUINO_TEST.pin_value, 0x00, sizeof(ARDUINO_TEST.pin_value));
    memset( ARDUINO_TEST.pin_mode, 0xFF, sizeof(ARDUINO_TEST.pin_mode));
    this->check_mode = Arduino_TEST::Check_mode::Full;
+   
+   RESET_FAKE( pinMode );
+   RESET_FAKE( digitalWrite );
+   RESET_FAKE( digitalRead );
+   RESET_FAKE( analogRead );
+   RESET_FAKE( analogWrite );
+   
    pinMode_fake.custom_fake = _arduino_test_pinMode;
    digitalWrite_fake.custom_fake = _arduino_test_digitalWrite;
    digitalRead_fake.custom_fake = _arduino_test_digitalRead;
@@ -85,7 +92,7 @@ void Arduino_TEST::hookup()
    analogWrite_fake.custom_fake = _arduino_test_analogWrite;
 
 }
-void Arduino_TEST::reset()
+void Arduino_TEST::hookdown()
 {
    pinMode_fake.custom_fake = NULL;
    digitalWrite_fake.custom_fake = NULL;

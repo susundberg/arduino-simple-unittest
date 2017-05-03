@@ -1,3 +1,9 @@
+/**
+ * Unittest file for led. In this example the timer module is faked also
+ * 
+ */
+
+
 #include "catch.hpp"
 #include "Arduino.h"
 
@@ -23,5 +29,7 @@ TEST_CASE( "Led blinking works", "[led]" )
    {
       run_loop();
       REQUIRE( digitalWrite_fake.call_count == 1);
+      
+      
    }
 }
