@@ -23,7 +23,7 @@ BASE_PATH=$(pwd)
 
 rm -rf $TARGET_DIR
 mkdir -p $TARGET_DIR
-cp -a "../tests/" $TARGET_DIR
+cp -a "../src/" "$TARGET_DIR/tests/"
 cp -a "$SOURCE_DIR/src" $TARGET_DIR
 cp -a "$SOURCE_DIR/tests" $TARGET_DIR
 cd $TARGET_DIR

@@ -114,7 +114,7 @@ class Arduino_TEST
      constexpr static const int MAX_PINS = 128;
      
      void hookup(); // Reset and hook the arduino functions (digitalRead, digitalWrite, pinMode, analogRead, analogWrite)
-     void reset(); // clear all values and custom hookups.
+     void hookdown(); // clear all values and custom hookups.
      void set_mode( Check_mode target );
      void check_write(uint8_t pin);
      void check_read(uint8_t pin);

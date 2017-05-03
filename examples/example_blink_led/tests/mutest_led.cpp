@@ -3,6 +3,7 @@
  * use it as real unit
  * 
  * __UNITTEST__SOURCES_ = runtime.cpp, main.cpp
+ * 
  */
 
 #include "catch.hpp"
@@ -27,15 +28,21 @@ TEST_CASE( "Led blinking works", "[led]" )
    
    ARDUINO_TEST.hookup(); 
    led.setup( 10 );
+   led.set_status( 2 );
    
    SECTION("It runs")
    {
-      run_loop();
+      run_loop(&led);
       REQUIRE( digitalWrite_fake.call_count == 1);
       
-      digitalWrite_fake.call_count = 0;
-      STimer__check_fake.return_val = true; // after this it will appear to module as the time would be changing always
-      run_loop();
-      REQUIRE( digitalWrite_fake.call_count == 10);
+      for ( int loop = 0; loop < 10; loop ++ )
+      {
+         digitalWrite_fake.call_count = 0;
+         millis_fake.return_val += 1000;  // lets fake this timer so that the STimer class will work as it would if 1sec has passed since last call.
+         run_loop(&led);
+         REQUIRE( digitalWrite_fake.call_count == 1);
+         REQUIRE( digitalWrite_fake.arg2_val == (loop%2) );
+      }
    }
 }
+

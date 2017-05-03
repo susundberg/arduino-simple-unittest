@@ -6,7 +6,7 @@
 # Define here tests that use several real source code files; others will be mocked
 # syntax is 'test_source_file_name' : List[ real sources ]
 # And the the test must start with "mutest_"
-MULTI_UNIT_TESTS = { "mutest_stime.cpp" : [ "stime.cpp", "stimer.cpp" ] }
+MULTI_UNIT_TESTS = { }
 
 # What libraries and flags you want
 libraries = ['gcov']
