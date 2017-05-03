@@ -6,7 +6,7 @@
 static char EEPROM[EEPROM_SIZE];
 
 
-void fake_eeprom_reset()
+void _test_eeprom_reset()
 {
    memset( EEPROM, 0xFE, sizeof(EEPROM ));
 }

@@ -21,14 +21,11 @@ run_single()
 }
 
 
-for tbin in tests/build/bin/ut_*; do
+for tbin in tests/build/bin/*ut_*; do
 	run_single $tbin 
 done;
 
 
-for tbin in tests/build/bin/mut_*; do
-	run_single $tbin
-done;
 
 lcov $ALL_INFO_FILES --output-file=tests/build/coverage/full.info
 genhtml --output=tests/build/coverage/ tests/build/coverage/full.info 

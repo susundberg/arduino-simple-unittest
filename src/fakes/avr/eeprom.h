@@ -8,6 +8,6 @@
 void eeprom_update_block( const void * src, void * dst, size_t n );
 void eeprom_read_block(  void * dest, const void * source, size_t n );
 
-void fake_eeprom_reset();
+void _test_eeprom_reset();
 
 #endif

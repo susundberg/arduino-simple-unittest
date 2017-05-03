@@ -13,7 +13,7 @@ void Serial_CLS::write( const char* buffer, int buffer_n )
 void Serial_CLS::_test_set_input( const char* what )
 {
    this->_test_input_buffer = std::queue<char>();
-   for ( int loop = 0; loop < strlen(what); loop ++ )
+   for ( int loop = 0; loop < (int)strlen(what); loop ++ )
    {
       this->_test_input_buffer.push( what[loop] );
    }

@@ -6,17 +6,17 @@
 # Define here tests that use several real source code files; others will be mocked
 # syntax is 'test_source_file_name' : List[ real sources ]
 # And the the test must start with "mutest_"
-MULTI_UNIT_TESTS = {}
+MULTI_UNIT_TESTS = { "mutest_stime.cpp" : [ "stime.cpp", "stimer.cpp" ] }
 
 # What libraries and flags you want
 libraries = ['gcov']
-cppFlags = ['-Wall', "-O0", "-g", "-fprofile-arcs","-ftest-coverage" ]#, '-Werror']
+cppFlags = ['-Wall', "-O0", "-g", "-fprofile-arcs","-ftest-coverage", "-std=c++11" ]#, '-Werror']
 
 
 ENV = Environment()
 ENV.Append(LIBS = libraries)
 ENV.Append(CPPFLAGS = cppFlags)
-ENV.Append(CPPPATH = ["tools/", "../src/",] )
+ENV.Append(CPPPATH = ["tools/", "../src/","fakes"] )
 ENV.Append(LINKFLAGS="--coverage")
 
 ENV.VariantDir('build/src', '../src', duplicate=0)
@@ -61,6 +61,8 @@ def build_mock_lib( env ):
    # Scan for all files that are available for mocking
    HEADER_ENDINGS = (".h", ".hh", ".hpp")
    mocks_manual    = seek_headers("./mocks_man", HEADER_ENDINGS )
+   mocks_extra     = Glob( "./mocks_man/fake_*.cpp" )
+   print "EXTRA:" + str(mocks_extra)
    mocks_generated = seek_headers("../src", HEADER_ENDINGS ) - mocks_manual
    
    from tools.fffmock import generate_mocks
@@ -73,24 +75,24 @@ def build_mock_lib( env ):
       target_h_fn = target[1].get_abspath()
       generate_mocks( source_fn, target_h_fn, target_c_fn  )
       
-   def mock_rename( source_header ):
+   def mock_rename( new_path, source_header  ):
       mock_base = os.path.basename( source_header ).split(".")[0]
-      return "mocks_gen/mock_%s.cpp" % mock_base
+      return new_path + "/mock_%s.cpp" % mock_base
    
-   def mock_rename_both( source_header ):
-      source_c = mock_rename( source_header  )
+   def mock_rename_both( new_path, source_header ):
+      source_c = mock_rename( new_path, source_header  )
       source_h = source_c.split(".")[0] + ".h"
       return (source_c, source_h)
    
    for source_header in mocks_generated:
-      mock_name_c, mock_name_h = mock_rename_both( source_header )
+      mock_name_c, mock_name_h = mock_rename_both( "mocks_gen", source_header )
       t = env.Command(target=(mock_name_c, mock_name_h), source=source_header, action=generate_mock)
       env.Depends( t , "tools/fffmock.py" )
       env.Depends( "build/" + mock_name_c , t)
       env.Depends( "build/" + mock_name_h , t)
    
-   mocks_generated = { mock_rename(x) for x in mocks_generated }
-   mocks_manual = { mock_rename(x) for x in mocks_manual }
+   mocks_generated = { mock_rename("mocks_gen", x) for x in mocks_generated }
+   mocks_manual = { mock_rename("mocks_man", x) for x in mocks_manual } | { ("mocks_man" + "/" + os.path.basename(str(x))) for x in mocks_extra }
 
    mocklib_sources = []
    mocklib_sources = fn_replace("mocks_gen", "build/mocks_gen", mocks_generated ) + fn_replace("mocks_man", "build/mocks_man", mocks_manual ) 
@@ -125,7 +127,7 @@ def build_multi_unit_test_bins( env, libsources ):
          raise Exception("MULTI_UNIT_TESTS must be prefixed with 'mutest_'")
       
       bin_name = "build/bin/mut_" + test_source.split(".")[0][ len("mutest_"): ]
-      sources = ["build/root/" + test_source, ] + [ "build/src/%s" % x for x in uut_sources  ]
+      sources = ["build/root/" + test_source  ] + [ "build/src/%s" % x for x in uut_sources  ]
       sources.extend(libsources )
       prog = env.Program( bin_name, sources )
       progs.append(prog)

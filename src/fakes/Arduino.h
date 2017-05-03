@@ -7,6 +7,8 @@
 #include <string.h>
 #include <math.h>
 
+#include "fff.h"
+
 #define HIGH 0x1
 #define LOW  0x0
 
@@ -55,17 +57,28 @@ typedef unsigned int word;
 typedef bool boolean;
 typedef uint8_t byte;
 
+
 void pinMode(uint8_t, uint8_t);
 void digitalWrite(uint8_t, uint8_t);
 int digitalRead(uint8_t);
 int analogRead(uint8_t);
+unsigned long millis();
 void analogWrite(uint8_t, int);
 void delay(unsigned long);
+
+DECLARE_FAKE_VOID_FUNC( pinMode, uint8_t, uint8_t );
+DECLARE_FAKE_VOID_FUNC( digitalWrite, uint8_t, uint8_t );
+DECLARE_FAKE_VALUE_FUNC( int, digitalRead, uint8_t );
+DECLARE_FAKE_VALUE_FUNC( unsigned long, millis );
+DECLARE_FAKE_VALUE_FUNC( int, analogRead, uint8_t );
+DECLARE_FAKE_VOID_FUNC( analogWrite, uint8_t, int );
+DECLARE_FAKE_VOID_FUNC( delay, unsigned long );
+
 
 
 #include <queue>
 #include <string>
-
+#include <map>
 
 
 class Serial_CLS
@@ -94,7 +107,31 @@ class Serial_CLS
 };
 
 
+class Arduino_TEST
+{
+   public:
+     enum class  Check_mode { Full, None }; // Mode FULL for all checks (check that digital write is output and digital read is input), Defaults to FULL
+     constexpr static const int MAX_PINS = 128;
+     
+     void hookup(); // Reset and hook the arduino functions (digitalRead, digitalWrite, pinMode, analogRead, analogWrite)
+     void reset(); // clear all values and custom hookups.
+     void set_mode( Check_mode target );
+     void check_write(uint8_t pin);
+     void check_read(uint8_t pin);
+     
+     int     pin_value[ MAX_PINS ];
+     uint8_t pin_mode [ MAX_PINS ];
+     
+     Check_mode check_mode;
+};
+
+extern Arduino_TEST ARDUINO_TEST;
+
 extern Serial_CLS Serial;
+
+typedef std::string String ;
+
+static const int A0 = 100;
 
 #define LED_BUILTIN 13
 
