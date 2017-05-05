@@ -42,6 +42,23 @@ These binaries will be called ```tests/build/bin/mutest_xxx``` and they will con
 1. Create a test file called ```tests/mutest_<any name here>.cpp```
 2. In that file create line containing '__UNITTEST__SOURCES_ = <source files comma separated>'. For example if you have ```src/foo.cpp'' and ```src/bar.cpp'', this line should be ```__UNITTEST__SOURCES_ = foo.cpp, bar.cpp```.
 
+The minimal test file (and this is enough! It compiles to test binary!) would be something like:
+```
+#include "catch.hpp"
+#include "Arduino.h"
+
+#include "led.h" 
+
+
+TEST_CASE( "Led blinking works", "[led]" ) 
+{
+   Led led;
+   led.setup(1);
+   REQUIRE( digitalWrite_fake.call_count == 1);
+   led.loop();
+   REQUIRE( digitalWrite_fake.call_count == 2);
+}
+```
 
 ### Extra: Define common test modules
 
