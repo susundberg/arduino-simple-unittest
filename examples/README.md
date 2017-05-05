@@ -15,6 +15,16 @@ Features:
 * Use the Serial-fake object to test the serial communication
 * Uses variable args
 
+### test_fail_pinwrite
+* Tests and demonstrate how we get fail for pinwrite on uninitialized port ( been there done that - debugging hardware for software bug).
+
+### test_ok_extra_fake
+* Demonstrate how to provide common sources for all tests.
+
+### test_ok_mock_manual
+* Demonstrate how to manually provide mocked methods, for example if you want to do some extra simulation or so.
+
+
 
 
 

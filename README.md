@@ -1,45 +1,57 @@
 
 Why use it
 ====================
-I found some arduino mock/test frameworks but they were either hacky or just hard to use, since you could not mock any modules. As professional software guy, i cannot stand bad tools or untested code (its just compiling before testing!). And i want to be able to step the code with gdb to find out what is going on rather than embed my code with tons of printfs - and then remove then when preparing to production. And i want test coverage report. 
 
-So what you get is a simple way to unittest your code.
-
-### Features:
-* Automatic generation of mock/stub functions from source-files headers
+* Automatic generation of mock/stub functions from source-files headers and automatic compiling of test binaries with specified units as real implementantions.
 * Basic Arduino functions fakes (so that compiling works, this is not an emulator)
-* Batteries included: test-framework & mocking picked from two lightweight alternatives   
-* Automatic compling of binary per source file, with other sources files stubbed amd binary per set of defined source files, with other sources stubbed.
+* Compiles to HOST-PC runnable binary, that you can easily debug with your preferred IDE or plain gdb.
+* Batteries included: test-framework & mocking picked from two lightweight alternatives
 
-How it works
-====================
-* The sconscript python build script scans src/ directory for *.h files - that are considered as modules.
-* Scans for tests/mocks_man folder for for *.h files and generates mocks (to mocks_gen/) for other modules (that are in src/ but not in mocks_man/ - these are manual created mocks/fakes. )
-* Scans for tests/mocks_man/fake_*.cpp for other extra files to be included in all builds (provides for example 'external XXX' linkage)
-* Scans for tests/test_*.cpp for module unittests - builds binary for each of them and mocks other modules
-* Scans for tests/mutest_*.cpp for multi unit tests, the file must contain magic string to name the real source modules (others mocked).
-
-
-What makes the heavy lifting
-====================
-* [FFF](https://github.com/meekrosoft/fff) to make mock functions
-* [CPPclean](https://github.com/myint/cppclean/) to parse the sources to find what kind of functions to mock  
-* [Catch](https://github.com/philsquared/Catch) to run tests
-* [Scons](http://scons.org/) to run building scripts 
-* [Lcov](http://ltp.sourceforge.net/coverage/lcov.php) to generate coverage report.
 
 Usage
 ====================
-Its not currently working with Arduino IDE code, but i welcome pull requests to make it happen. It should not be that much. But it does work fine with platformio projects.
+This currently works only with platformio projects. So its not working with Arduino IDE code, but i welcome pull requests to make it happen.  
 
-* Copy the 'src' folder as 'tests' folder into your project 
-* The sconscript assumes that you have 'src' directory that contains *.cpp files that each have corresponding .h header file. 
-    * You need to split your project into separate files - i call them on this text modules - every module own functions are real and every other module is mocked - that is when the function is called, rather than the real code is executed a stub or mock function is called (that records the parameters and returns a given value by default) 
-    * For example if you have "src/robot_arm.cpp" you must have also "src/robot_arm.h" that contains declarations of the functions that are called outside of the module. And the "src/main.cpp" that calls "robot_arm_init()" function will be calling actually a stub "robot_arm_init()" function when running main.cpp unittests (defined in file "tests/test_main.cpp").
-* Add building of the tests to your build manager - it works by executing '''scons -Y tests/tools/''' on base path
+First you might want to see the examples folder - the [blink led](examples/example_blink_led) is currently the best to get quick overview what this is about.
+
+### Set up the framework for your project:
+
+Currently you need to copy this projects 'src' folder to your project. This is because Scons is not very happy with out-of-tree builds. Sorry.
+
+1. Copy the 'src' folder as 'tests' folder into your project.
+2. Add building of the tests to your build manager - it works by executing '''scons -Y tests/tools/''' on base path
     * There is also example Makefile on the tests/tools/ directory
-* Add file "test_<unit name here>.cpp" that contains Catch tests. It will be done as binary called "tests/build/bin/ut_<unit name here>" with every other module replaced with mocks.
-* Add file "mutest_<any name here>.cpp" that contains Catch tests. It must contain magic string '__UNITTEST__SOURCES_ = <source files comma separated>'.
+
+### Start writing unit tests
+
+These tests will be linked so that they will have only the unit under test real source file and other modules are mocked. See below for more info.
+
+1. Create a test file called '''tests/test_<any name here>.cpp'''
+
+That is if you have '''src/foo.cpp''' and '''src/bar.cpp''' the test file for foo should
+be called '''tests/tests_foo.cpp''' and there will be binary called '''tests/build/bin/test_foo''' created after compiling is done.
+
+The test binary will have real implementations from '''src/foo.cpp''' but module Bar will be implemented in mock - from '''tests/mocks_gen/mock_bar.cpp'''. 
+The arduino specific stuff is mostly mocked away, but some extra checking is availble. See [src/Arduino.h](src/Arduino.h) and 'Fakes provided' later on this document.
+ 
+
+### Do some multi-unit tests
+
+These binaries will be called '''tests/build/bin/mutest_xxx''' and they will contain real implementation from the files listed. Other modules will be mocked away.
+
+1. Create a test file called '''tests/mutest_<any name here>.cpp'''
+2. In that file create line containing '__UNITTEST__SOURCES_ = <source files comma separated>'. For example if you have '''src/foo.cpp'' and '''src/bar.cpp'', this line should be '''__UNITTEST__SOURCES_ = foo.cpp, bar.cpp'''.
+
+
+### Extra: Define common test modules
+
+These common files will be included in all tests. They can be used to contain global variables ('''external Foo XXX''' stuff) or just common test code ('''initialize_output_csv()''').
+1. Create files '''tests/common_<any name here>.cpp''' as needed. 
+
+### Extra: Define manual mocks
+
+For manually mocked modules we do not generate 'automatic' mocks. To define a module as manually mocked do:
+1. Create '''tests/mocks_man/mock_<source filename>.cpp''' - that is if you have '''src/foo.cpp''' create file '''tests/mocks_man/mock_foo.cpp''' that contains the mocked functions 
 
 
 Fakes provided
@@ -65,11 +77,21 @@ Testing of the test framework
 ====================
 * Tested with travis on ubuntu trusty ![build status](https://travis-ci.org/susundberg/arduino-simple-unittest.svg?branch=master)
 
+What makes the heavy lifting
+====================
+* [FFF](https://github.com/meekrosoft/fff) to make mock functions
+* [CPPclean](https://github.com/myint/cppclean/) to parse the sources to find what kind of functions to mock  
+* [Catch](https://github.com/philsquared/Catch) to run tests
+* [Scons](http://scons.org/) to run building scripts 
+* [Lcov](http://ltp.sourceforge.net/coverage/lcov.php) to generate coverage report.
+
+
 TODO
 ====================
-* Support for static member functions
-* Support for overloaded functions
-* Support for references in parameters
-* Support for types that are defined inside classes/structures
+
+* C++: Support for static member functions
+* C++: Support for overloaded functions
+* C++: Support for references in parameters
+* C++: Support for types that are defined inside classes/structures
 
 

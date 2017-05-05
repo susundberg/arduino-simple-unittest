@@ -28,19 +28,7 @@ ENV_TESTBIN.Append( CPPPATH = ("mocks_gen", "mocks_man", "fakes", ), )
 import os
 import re
 
-def seek_headers( target_dir, valid_endings ):
-   mock_set = set()
-   for fn in os.listdir( target_dir ):
-      fn = os.path.join(target_dir, fn)
-      
-      fn_lower = fn.lower()
-      for ending in valid_endings:
-         if fn_lower.endswith(ending):
-            break
-      else:
-         continue
-      mock_set.add( fn )
-   return mock_set
+
 
    
 def fn_replace( what, with_what, fns ):
@@ -53,12 +41,35 @@ def fn_replace( what, with_what, fns ):
    
    
 def build_mock_lib( env ):
-   # Scan for all manually mocked files
-   # Scan for all files that are available for mocking
-   HEADER_ENDINGS = (".h", ".hh", ".hpp")
-   mocks_manual    = seek_headers("./mocks_man", HEADER_ENDINGS )
+   
+   # These are manually mocked functions, we do not mock those
+   mocks_manual    = Glob( "./mocks_man/mock_*.cpp" )
+   # These are common functions, we always include those
    mocks_extra     = Glob( "./common_*.cpp" )
-   mocks_generated = seek_headers("../src", HEADER_ENDINGS ) - mocks_manual
+   # These are all headers that could have mocks, we reduce manual mocks from them
+   all_headers     = Glob( "../src/*.h" )
+   
+   def convert_filename( fn, old_prefix, new_prefix, old_postfix, new_postfix ):
+      fn = os.path.basename( fn )
+      if not fn.startswith( old_prefix ):
+         raise Exception("Trying to convert file '%s' that does not start with '%s' as assumed." % (fn, old_prefix ) )
+      
+      if not fn.endswith( old_postfix):
+         raise Exception("Trying to convert file '%s' that does not endwith '%s' as assumed." % (fn, old_postfix ) )
+      
+      def rreplace(s, old, new, occurrence):
+          li = s.rsplit(old, occurrence)
+          return new.join(li)
+      
+      fn = fn.replace( old_prefix, new_prefix, 1)
+      fn = rreplace( fn, old_postfix, new_postfix, 1)
+      return fn
+   
+      
+   mocks_manual_sources = { convert_filename( str(x), "mock_", "", ".cpp", "" ) for x in mocks_manual }
+   mocks_generated_sources = { convert_filename( str(x), "", "", ".h", ""  ) for x in all_headers } 
+   # And then do not generate mocks for manually mocked files
+   mocks_generated_sources -= mocks_manual_sources
    
    from tools.fffmock import generate_mocks
 
@@ -70,28 +81,19 @@ def build_mock_lib( env ):
       target_h_fn = target[1].get_abspath()
       generate_mocks( source_fn, target_h_fn, target_c_fn  )
       
-   def mock_rename( new_path, source_header  ):
-      mock_base = os.path.basename( source_header ).split(".")[0]
-      return new_path + "/mock_%s.cpp" % mock_base
    
-   def mock_rename_both( new_path, source_header ):
-      source_c = mock_rename( new_path, source_header  )
-      source_h = source_c.split(".")[0] + ".h"
-      return (source_c, source_h)
-   
-   for source_header in mocks_generated:
-      mock_name_c, mock_name_h = mock_rename_both( "mocks_gen", source_header )
+   for source in mocks_generated_sources:
+      mock_name_c = "mocks_gen/mock_%s.cpp" % source
+      mock_name_h = "mocks_gen/mock_%s.h" % source
+      source_header = "../src/%s.h" % source
       t = env.Command(target=(mock_name_c, mock_name_h), source=source_header, action=generate_mock)
       env.Depends( t , "tools/fffmock.py" )
-      env.Depends( "build/" + mock_name_c , t)
+      env.Depends( "build/" + mock_name_c , t) #Sconscrit does not understand at time of writing this dependency -> mock does not get regenerated if this is not here.
       env.Depends( "build/" + mock_name_h , t)
    
-   mocks_generated = { mock_rename("mocks_gen", x) for x in mocks_generated }
-   mocks_manual = { mock_rename("mocks_man", x) for x in mocks_manual } 
    
-   
-   mocklib_sources = fn_replace("mocks_gen", "build/mocks_gen", mocks_generated )
-   mocklib_sources += fn_replace("mocks_man", "build/mocks_man", mocks_manual ) 
+   mocklib_sources =  [ "build/mocks_gen/mock_%s.cpp" % x for x in mocks_generated_sources ]
+   mocklib_sources += [ "build/mocks_man/mock_%s.cpp" % x for x in mocks_manual_sources ]
    mocklib_sources += [ "build/root/%s" % x for x in mocks_extra ]                     
                      
    mock_lib = env.Library( "build/build/mocks", mocklib_sources,   )
@@ -147,7 +149,7 @@ FAKE_LIB = build_fake_lib(ENV)
 TEST_LIB = build_test_lib(ENV)
 
 
-build_test_binaries( ENV_TESTBIN, ( TEST_LIB, FAKE_LIB, MOCK_LIB, ), "test", build_test_binaries_single )
-build_test_binaries( ENV_TESTBIN, ( TEST_LIB, FAKE_LIB, MOCK_LIB, ), "mutest", build_test_binaries_multi )  
+build_test_binaries( ENV_TESTBIN, ( TEST_LIB, MOCK_LIB, FAKE_LIB,  ), "test", build_test_binaries_single )
+build_test_binaries( ENV_TESTBIN, ( TEST_LIB, MOCK_LIB,  FAKE_LIB, ), "mutest", build_test_binaries_multi )  
 
 

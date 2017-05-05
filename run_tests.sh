@@ -1,5 +1,6 @@
 #!/bin/bash
 cd examples
+rm -rf build
 
 set -e
 
