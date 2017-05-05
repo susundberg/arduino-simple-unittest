@@ -21,7 +21,7 @@ run_single()
 }
 
 
-for tbin in tests/build/bin/*ut_*; do
+for tbin in tests/build/bin/*test_*; do
 	run_single $tbin 
 done;
 

@@ -33,7 +33,7 @@ void StatusToLed::loop()
    this->timer.reset();
    this->blink_loop += 1;
    
-   if ( this->blink_loop > 2*blinks ) // accept equal, since with one blink we have long-short, long-short
+   if ( this->blink_loop >= 2*blinks ) // accept equal, since with one blink we have long-short, long-short
       this->blink_loop = 0;
    
    digitalWrite( pin, (this->blink_loop&0x01) );

@@ -2,7 +2,7 @@
 
 set -e
 
-for tbin in tests/build/bin/*t_*; do
+for tbin in tests/build/bin/*test_*; do
 	echo "*** Running:  $tbin ***"
         ./$tbin
         echo "*** DONE ***"

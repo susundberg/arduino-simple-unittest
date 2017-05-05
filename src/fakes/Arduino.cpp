@@ -1,5 +1,7 @@
 #include "Arduino.h"
-#include <assert.h>
+
+#include "catch.hpp"
+
 
 DEFINE_FAKE_VOID_FUNC( pinMode, uint8_t, uint8_t );
 DEFINE_FAKE_VOID_FUNC( digitalWrite, uint8_t, uint8_t );
@@ -16,7 +18,7 @@ Arduino_TEST ARDUINO_TEST;
 
 void _arduino_test_pinMode( uint8_t pin, uint8_t mode )
 {
-   assert( pin < Arduino_TEST::MAX_PINS );
+   ARDUINO_TEST.check_pin( pin );
    ARDUINO_TEST.pin_mode[ pin ] = mode;
 }
 
@@ -49,25 +51,32 @@ void Arduino_TEST::set_mode( Arduino_TEST::Check_mode mode )
    this->check_mode = mode;
 }
 
-void  Arduino_TEST::check_read( uint8_t pin )
+void Arduino_TEST::check_pin( uint8_t pin )
 {
-   assert( pin < Arduino_TEST::MAX_PINS );
+   int max_pins = Arduino_TEST::MAX_PINS;
+   REQUIRE( pin < max_pins );
+}
+
+void Arduino_TEST::check_read( uint8_t pin )
+{
+   check_pin( pin );
    
    if ( this->check_mode !=  Arduino_TEST::Check_mode::Full )
       return;
    
-   assert( (this->pin_mode[ pin ] == INPUT) || (this->pin_mode[ pin ] == INPUT_PULLUP ));
+   bool valid_input = (this->pin_mode[ pin ] == INPUT) || (this->pin_mode[ pin ] == INPUT_PULLUP );
+   REQUIRE( valid_input == true );
    
 }
 
 void  Arduino_TEST::check_write( uint8_t pin )
 {
-   assert( pin < Arduino_TEST::MAX_PINS );
+   check_pin( pin );
    
    if ( this->check_mode !=  Arduino_TEST::Check_mode::Full )
       return;
    
-   assert( this->pin_mode[ pin ] == OUTPUT );
+   REQUIRE( this->pin_mode[ pin ] == OUTPUT );
    
 }
 

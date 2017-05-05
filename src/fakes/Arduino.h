@@ -118,7 +118,7 @@ class Arduino_TEST
      void set_mode( Check_mode target );
      void check_write(uint8_t pin);
      void check_read(uint8_t pin);
-     
+     void check_pin(uint8_t pin);
      int     pin_value[ MAX_PINS ];
      uint8_t pin_mode [ MAX_PINS ];
      
