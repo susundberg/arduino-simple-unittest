@@ -6,7 +6,7 @@
 # Define here tests that use several real source code files; others will be mocked
 # syntax is 'test_source_file_name' : List[ real sources ]
 # And the the test must start with "mutest_"
-MULTI_UNIT_TESTS = { }
+MULTI_UNIT_TESTS = {}
 
 # What libraries and flags you want
 libraries = ['gcov']
@@ -62,7 +62,6 @@ def build_mock_lib( env ):
    HEADER_ENDINGS = (".h", ".hh", ".hpp")
    mocks_manual    = seek_headers("./mocks_man", HEADER_ENDINGS )
    mocks_extra     = Glob( "./mocks_man/fake_*.cpp" )
-   print "EXTRA:" + str(mocks_extra)
    mocks_generated = seek_headers("../src", HEADER_ENDINGS ) - mocks_manual
    
    from tools.fffmock import generate_mocks
@@ -127,7 +126,7 @@ def build_multi_unit_test_bins( env, libsources ):
          raise Exception("MULTI_UNIT_TESTS must be prefixed with 'mutest_'")
       
       bin_name = "build/bin/mut_" + test_source.split(".")[0][ len("mutest_"): ]
-      sources = ["build/root/" + test_source  ] + [ "build/src/%s" % x for x in uut_sources  ]
+      sources = ["build/root/" + test_source, ] + [ "build/src/%s" % x for x in uut_sources  ]
       sources.extend(libsources )
       prog = env.Program( bin_name, sources )
       progs.append(prog)
