@@ -1,18 +1,31 @@
 
-Why use it
+What it is
+====================
+Unittesting 'framework' for arduino projects, currently works with platform.io projects. It generates host-pc binaries that contains tests, that can be runned and debuged, no flashing required, super fast. I call it framework, since it provides building, mock-generation and testing in single package, and requires you to copy folder to your project folder.
+
+
+Why use it instead of other testing frameworks
 ====================
 
 * Automatic generation of mock/stub functions from source-files headers and automatic compiling of test binaries with specified units as real implementantions.
 * Basic Arduino functions fakes (so that compiling works, this is not an emulator)
-* Compiles to HOST-PC runnable binary, that you can easily debug with your preferred IDE or plain gdb.
+* Compiles to HOST-PC runnable binary, that you can easily debug with your preferred IDE or plain gdb. 
 * Batteries included: test-framework & mocking picked from two lightweight alternatives
 
+Examples why to do unittesting on your arduino code
+====================
+* Timer class that has to deal with overflow. Manually testing is imposible, and testing on real hw is doable, but you have to inject somehow millis() to return proper test values.
+     * Create separate My_Timer.h module, that is unit under tests, and other modules, (include millis() function) are mocked, and user can define the return codes as one pleases.
+* Serial communication with another device, and you want to make sure the output looks proper 
+     * Create separate My_Device.h module, that is unit under test, make the Serial.read() return the input you want and check that Serial.write output is proper.
+* Stepper motor driving with specified ramp - assume you are controlling a stepper motor, that speeds up with smooth ramp and travels certain number of steps. You want to make sure that the ramp has no 'clitches' and it looks proper. 
+     * Create My_Driver.h module that contanis the driving functions and My_Stepper.h that contains the actual stepper controlling functions. Now when testing module My_Driver you can set the MyStepper.set_steps() to output a file, and you can analyze the file with say python to find possible spikes.   
 
 Usage
 ====================
-This currently works only with platformio projects. So its not working with Arduino IDE code, but i welcome pull requests to make it happen.  
 
 First you might want to see the examples folder - the [blink led](examples/example_blink_led) is currently the best to get quick overview what this is about.
+
 
 ### Set up the framework for your project:
 
@@ -80,7 +93,7 @@ Fakes provided
 
 Examples
 ====================
-* See examples directory that also works as tests for this test framework.
+* See [aquarium feeder](examples) directory that also works as tests for this test framework.
 * See my [aquarium feeder](https://github.com/susundberg/arduino-aquarium-feeder) project for full platformio example  
 
 #### Screenshot: Debugger on arduino code
@@ -106,9 +119,20 @@ What makes the heavy lifting
 TODO
 ====================
 
+### Structure: build tree
+I would like to have the tests/ folder out from the source tree, but currently it would require some hacking for Scons to support out of tree build or change of build system. 
+
+### Structure: separate platforms
+I am working on ESP8266 support, and it would be neat to have it somewhat separated from the basic Arduino tree, and one would configure the platform used in tests/test_config.ini or similar. 
+
+### Mock generation: C++
 * C++: Support for static member functions
 * C++: Support for overloaded functions
 * C++: Support for references in parameters
 * C++: Support for types that are defined inside classes/structures
+
+### Arduino IDE
+Like said before, currently this works only with platformio projects. So its not working with Arduino IDE code, but i welcome pull requests to make it happen. With Arduino IDE one still needs the source files to be splitted to multiple files (for mock generatation). 
+
 
 
