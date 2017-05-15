@@ -93,7 +93,7 @@ Fakes provided
 
 Examples
 ====================
-* See [aquarium feeder](examples) directory that also works as tests for this test framework.
+* See [examples](examples) directory that also works as tests for this test framework.
 * See my [aquarium feeder](https://github.com/susundberg/arduino-aquarium-feeder) project for full platformio example  
 
 #### Screenshot: Debugger on arduino code
